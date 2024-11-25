@@ -1,8 +1,11 @@
 import Fastify from 'fastify';
+import { userRoutes } from './modules/user/user.route';
 
 const app = Fastify({
   logger: true,
 });
+
+app.register(userRoutes, { prefix: 'api/users' });
 
 const listeners = ['SIGINT', 'SIGTERM'];
 listeners.forEach((signal) => {

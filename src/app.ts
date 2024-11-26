@@ -1,11 +1,16 @@
 import Fastify from 'fastify';
 import { userRoutes } from './modules/user/user.route';
+import { validatorCompiler, serializerCompiler, ZodTypeProvider } from 'fastify-type-provider-zod';
 
 const app = Fastify({
   logger: true,
 });
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
-app.register(userRoutes, { prefix: 'api/users' });
+app
+  .withTypeProvider<ZodTypeProvider>()
+  .register(userRoutes, { prefix: 'api/users' });
 
 const listeners = ['SIGINT', 'SIGTERM'];
 listeners.forEach((signal) => {

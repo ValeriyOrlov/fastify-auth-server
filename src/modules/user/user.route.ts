@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createUserResponseSchema, createUserSchema, loginResponseSchema, loginSchema } from "./user.schema";
+import { createUser } from "./user.controller";
 
 export async function userRoutes(app: FastifyInstance) {
   app.get('/', (req: FastifyRequest, reply: FastifyReply) => {
@@ -14,7 +15,8 @@ export async function userRoutes(app: FastifyInstance) {
       },
     },
   },
-    () => {});
+    createUser,
+  );
 
   app.post('/login', {
     schema: {

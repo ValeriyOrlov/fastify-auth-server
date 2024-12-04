@@ -39,4 +39,49 @@ export async function createUser(
   } catch(e) {
     return reply.code(500).send(e);
   }
-}
+};
+
+export async function login(
+  req: FastifyRequest<{
+    Body: LoginUserInput
+  }>,
+  reply: FastifyReply,
+) {
+  const { email, password } = req.body;
+
+  const user = await prisma.user.findUnique({ where: { email: email }});
+
+  const isMatch = user && (await bcrypt.compare(password, user.password));
+  if (!user || !isMatch) {
+    return reply.code(401).send({
+      message: 'Invalid email or password',
+    })
+  };
+
+  const payload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  };
+
+  const token = req.jwt.sign(payload);
+
+  reply.setCookie('access_token', token, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  });
+
+  return { acessToken: token };
+};
+
+export async function getUsers(req: FastifyRequest, reply: FastifyReply) {
+  const users = await prisma.user.findMany({
+    select: {
+      name: true,
+      id: true,
+      email: true,
+    },
+  })
+  return reply.code(200).send(users);
+};
